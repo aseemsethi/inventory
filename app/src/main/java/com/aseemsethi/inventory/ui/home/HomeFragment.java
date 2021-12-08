@@ -1,5 +1,7 @@
 package com.aseemsethi.inventory.ui.home;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -211,7 +213,11 @@ public class HomeFragment extends Fragment implements
             Log.d(TAG, "update UI - account is non Null");
             homeViewModel.setLoggedin(true);
             homeViewModel.setStatus("Signed in");
-            mStatusTextView.setText(getString(R.string.signed_in_fmt, user.getDisplayName()));
+            SharedPreferences sharedPref = getActivity().
+                    getPreferences(Context.MODE_PRIVATE);
+            String nm = sharedPref.getString("cid", "10000");
+            mStatusTextView.setText(getString(R.string.signed_in_fmt,
+                    user.getDisplayName() + ", Cid: " + nm));
             Log.d(TAG, "Signed in: " + user.getDisplayName());
             binding.signInButton.setVisibility(View.GONE);
             binding.signOutAndDisconnect.setVisibility(View.VISIBLE);

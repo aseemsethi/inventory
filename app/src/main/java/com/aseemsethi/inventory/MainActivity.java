@@ -41,6 +41,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreSettings;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -53,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     // [START declare_auth]
     private FirebaseAuth mAuth;
     // [END declare_auth]
+    FirebaseFirestore db;
 
     private GoogleSignInClient mGoogleSignInClient;
 
@@ -65,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
      homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
 
         setSupportActionBar(binding.appBarMain.toolbar);
+        /*
         mStatusTextView = this.findViewById(R.id.status);
         homeViewModel.getText().observe(this, new Observer<String>() {
             @Override
@@ -73,18 +77,26 @@ public class MainActivity extends AppCompatActivity {
                 mStatusTextView.setText(s);
             }
         });
+         */
 
         DrawerLayout drawer = binding.drawerLayout;
         NavigationView navigationView = binding.navView;
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_inventory, R.id.nav_settings)
+                R.id.nav_home, R.id.nav_inventory, R.id.nav_read, R.id.nav_settings)
                 .setDrawerLayout(drawer)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
+
+        db = FirebaseFirestore.getInstance();
+        FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)
+                .setCacheSizeBytes(FirebaseFirestoreSettings.CACHE_SIZE_UNLIMITED)
+                .build();
+        db.setFirestoreSettings(settings);
     }
 
     @Override

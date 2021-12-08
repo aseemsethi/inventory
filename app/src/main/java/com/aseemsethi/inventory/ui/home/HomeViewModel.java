@@ -15,7 +15,7 @@ public class HomeViewModel extends ViewModel {
 
     public HomeViewModel() {
         mText = new MutableLiveData<>();
-        mText.setValue("Please log in....");
+        //mText.setValue("Please log in....");
     }
 
     public LiveData<String> getText() {
@@ -32,6 +32,6 @@ public class HomeViewModel extends ViewModel {
         return status;
     }
     public void setStatus(String val) {
-        Log.d(TAG, "Door:" + val);
+        Log.d(TAG, val);
         status.setValue(val);}
 }
