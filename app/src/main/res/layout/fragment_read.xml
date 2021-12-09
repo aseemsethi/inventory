@@ -40,6 +40,32 @@
         </HorizontalScrollView>
     </ScrollView>
 
+    <RadioGroup
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toTopOf="@id/btns"
+        android:weightSum="1"
+        android:orientation="horizontal"
+        android:id="@+id/radioGroup">
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="55dp"
+            android:text="Day"
+            android:id="@+id/dayRB"
+            android:checked="true"
+            android:textSize="20dp" />
+
+        <RadioButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="All"
+            android:layout_marginLeft="20dp"
+            android:id="@+id/allRB"
+            android:checked="false"
+            android:textSize="20dp"
+            android:layout_weight="0.13" />
+    </RadioGroup>
+
     <RelativeLayout
         android:id="@+id/btns"
         android:layout_width="fill_parent"
@@ -56,31 +82,22 @@
             android:layout_marginLeft="20dp"
             android:orientation="horizontal">
             <Button
-                android:id="@+id/downloadAll"
+                android:id="@+id/downloadBtn"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="All"
+                android:text="Download"
                 android:textColor="#000000"
                 android:theme="@style/ThemeOverlay.MyDarkButton" />
 
             <Button
-                android:id="@+id/downloadMonth"
+                android:id="@+id/viewBtn"
                 android:layout_width="0dp"
                 android:layout_marginLeft="20dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textColor="#000000"
-                android:text="Mnth"
-                android:theme="@style/ThemeOverlay.MyDarkButton" />
-            <Button
-                android:id="@+id/downloadDaily"
-                android:layout_width="0dp"
-                android:layout_marginLeft="20dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:textColor="#000000"
-                android:text="Day"
+                android:text="View"
                 android:theme="@style/ThemeOverlay.MyDarkButton" />
         </LinearLayout>
     </RelativeLayout>

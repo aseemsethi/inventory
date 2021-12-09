@@ -102,13 +102,15 @@ public class InventoryFragment extends Fragment {
                 Log.d(TAG, "Item no: " + binding.itemNo.getText().toString());
                 String str = binding.itemNo.getText().toString();
                 if(str == null || str.trim().isEmpty()) {
-                    Toast.makeText(getContext(),"Enter Quantity",Toast.LENGTH_SHORT).show();
+                    if (isAdded())
+                        Toast.makeText(getContext(),"Enter Quantity",Toast.LENGTH_SHORT).show();
                 } else {
                     try {
                         Integer val = Integer.valueOf(binding.itemNo.getText().toString());
                         addData(binding.itemID.getText().toString(), val);
                     } catch(Exception e) {
-                        Toast.makeText(getContext(), "Input error",
+                        if (isAdded())
+                            Toast.makeText(getContext(), "Input error",
                                 Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -149,7 +151,8 @@ public class InventoryFragment extends Fragment {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Log.d(TAG, "Doc successfully written!");
-                                        Toast.makeText(getContext(), "Write ok..",
+                                        if (isAdded())
+                                            Toast.makeText(getContext(), "Write ok..",
                                                 Toast.LENGTH_SHORT).show();
                                     }
                                 })
@@ -157,7 +160,8 @@ public class InventoryFragment extends Fragment {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
                                         Log.w(TAG, "Error writing document", e);
-                                        Toast.makeText(getContext(), "Write failed..",
+                                        if (isAdded())
+                                            Toast.makeText(getContext(), "Write failed..",
                                                 Toast.LENGTH_SHORT).show();
                                     }
                                 });
@@ -171,7 +175,8 @@ public class InventoryFragment extends Fragment {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Log.d(TAG, "New Doc successfully written!");
-                                        Toast.makeText(getContext(),"New Doc Write ok..",
+                                        if (isAdded())
+                                            Toast.makeText(getContext(),"New Doc Write ok..",
                                                 Toast.LENGTH_SHORT).show();
                                     }
                                 })
@@ -179,14 +184,16 @@ public class InventoryFragment extends Fragment {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
                                         Log.w(TAG, "Error writing document", e);
-                                        Toast.makeText(getContext(),"New Doc Write failed..",
+                                        if (isAdded())
+                                            Toast.makeText(getContext(),"New Doc Write failed..",
                                                 Toast.LENGTH_SHORT).show();
                                     }
                                     });
                     }
                 } else {
                     Log.d(TAG, "Failed with: ", task.getException());
-                    Toast.makeText(getContext(),"DB Access Error",
+                    if (isAdded())
+                        Toast.makeText(getContext(),"DB Access Error",
                             Toast.LENGTH_SHORT).show();
                 }
             }

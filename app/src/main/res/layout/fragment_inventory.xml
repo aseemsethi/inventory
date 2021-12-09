@@ -11,9 +11,12 @@
         android:id="@+id/simpleTableLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:stretchColumns="1">
-        <!-- stretch the second column of the layout-->
-
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        >
+        <!-- stretch the second column of the layout
+        android:stretchColumns="0"-->
         <!-- first row of the table layout-->
         <TableRow
             android:id="@+id/firstRow"
@@ -25,19 +28,48 @@
                 android:layout_height="wrap_content"
                 android:background="#ffe599"
                 android:padding="18dip"
-                android:hint="Item"
+                android:layout_weight=".6"
+                android:hint="Item Name"
                 android:textColor="#000"
-                android:textSize="14dp" />
+                android:textSize="20dp" />
 
             <EditText
                 android:id="@+id/itemNo"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="#fff2cc"
+                android:layout_weight=".4"
                 android:padding="18dip"
                 android:hint="0"
                 android:textColor="#000"
-                android:textSize="16dp" />
+                android:textSize="20dp" />
+        </TableRow>
+
+        <TableRow
+            android:id="@+id/secondRow"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp">
+            <TextView
+                android:id="@+id/barCodeD"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#ffe599"
+                android:padding="18dip"
+                android:layout_weight=".6"
+                android:hint="Bar Code"
+                android:textColor="#000"
+                android:textSize="20dp" />
+
+            <Button
+                android:id="@+id/barcode"
+                style="@style/AppTheme.RoundedCornerMaterialButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:text="BarCode"
+                android:textColor="#000000"
+                android:textSize="18dp" />
         </TableRow>
 
         <TableRow
@@ -46,7 +78,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="16dp" />
+                android:textSize="40dp" />
 
         </TableRow>
         <TableRow
@@ -60,8 +92,7 @@
                 android:layout_height="wrap_content"
                 android:text="Save"
                 android:textColor="#000000"
-                android:textSize="16dp" />
-
+                android:textSize="18dp" />
         </TableRow>
     </TableLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

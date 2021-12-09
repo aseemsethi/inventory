@@ -13,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
 import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -24,6 +26,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.aseemsethi.inventory.MainActivity;
 import com.aseemsethi.inventory.R;
 import com.aseemsethi.inventory.databinding.FragmentInventoryBinding;
 import com.aseemsethi.inventory.databinding.FragmentInventoryBinding;
@@ -68,7 +71,8 @@ public class ReadFragment extends Fragment {
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         if (homeViewModel.getLoggedin() == false) {
             Log.d(TAG, "Not logged in..");
-            Toast.makeText(getContext(),"Please login first...",
+            if (isAdded())
+                Toast.makeText(getContext(),"Please login first...",
                     Toast.LENGTH_SHORT).show();
             return null;
         } else {
@@ -84,20 +88,36 @@ public class ReadFragment extends Fragment {
 
         binding = FragmentReadBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        final Button btn = binding.downloadDaily;
+        final Button btn = binding.viewBtn;
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 v.startAnimation(buttonClick);
-                getDailyData();
+                int selectedId = binding.radioGroup.getCheckedRadioButtonId();
+                Log.d(TAG, "Selected: " + selectedId);
+                RadioButton rb = root.findViewById(selectedId);
+                String duration = rb.getText().toString();
+                if (duration.equals("Day")) {
+                    getDailyData();
+                } else {
+                    getAllData();
+                }
             }
         });
-        final Button btn2 = binding.downloadAll;
+        final Button btn2 = binding.downloadBtn;
         btn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 v.startAnimation(buttonClick);
-                getAllData();
+                int selectedId = binding.radioGroup.getCheckedRadioButtonId();
+                Log.d(TAG, "Selected: " + selectedId);
+                RadioButton rb = root.findViewById(selectedId);
+                String duration = rb.getText().toString();
+                if (duration.equals("Day")) {
+                    getDailyData();
+                } else {
+                    getAllData();
+                }
             }
         });
         return root;

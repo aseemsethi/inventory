@@ -35,7 +35,8 @@ public class SettingsFragment extends Fragment {
         homeViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
         if (homeViewModel.getLoggedin() == false) {
             Log.d(TAG, "Not logged in..");
-            Toast.makeText(getContext(),"Please login first...",
+            if (isAdded())
+                Toast.makeText(getContext(),"Please login first...",
                     Toast.LENGTH_SHORT).show();
             return null;
         } else {
