@@ -134,7 +134,7 @@ public class InventoryFragment extends Fragment {
         Map<String, Object> data = new HashMap<>();
         //data.put("item", itemName);
         //data.put("count", num);
-        data.put(itemName, 2);
+        data.put(itemName, num);
         Log.d(TAG, "Adding: " + itemName + ", num: " + num + " to cid: " +  cid);
 
         docref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
