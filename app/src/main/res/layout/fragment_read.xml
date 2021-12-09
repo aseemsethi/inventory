@@ -7,53 +7,41 @@
     android:layout_height="match_parent"
     tools:context=".ui.inventory.InventoryFragment" >
 
-    <TableLayout
-        android:id="@+id/table1"
-        android:layout_width="match_parent"
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:stretchColumns="1">
-        <!-- stretch the second column of the layout-->
-
-        <!-- first row of the table layout-->
-        <TableRow
-            android:id="@+id/firstRow"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/btns"
+        android:background="#3d455b"
+        android:layout_alignParentLeft="true" >
+        <HorizontalScrollView
+            android:id="@+id/hscrll1"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:id="@+id/item"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="#ffe599"
-                android:padding="18dip"
-                android:text="Item"
-                android:textColor="#000"
-                android:textSize="14dp" />
+            android:layout_height="wrap_content" >
 
-            <EditText
-                android:id="@+id/itemID"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="#fff2cc"
-                android:padding="18dip"
-                android:text="Plate"
-                android:textColor="#000"
-                android:textSize="16dp" />
-        </TableRow>
-    </TableLayout>
-
-    <TextView
-        android:id="@+id/itemOut1"
-        app:layout_constraintTop_toBottomOf="@id/table1"
-        android:layout_marginTop="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="#ffe599"
-        android:padding="18dip"
-        android:text="Result"
-        android:textColor="#000"
-        android:textSize="14dp" />
+            <RelativeLayout
+                android:id="@+id/RelativeLayout1"
+                android:layout_width="fill_parent"
+                android:layout_gravity="center"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="5dp"
+                android:orientation="vertical" >
+                <TableLayout
+                    android:id="@+id/tableD"
+                    android:layout_marginTop="25dp"
+                    android:layout_marginBottom="25dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_centerHorizontal="true" >
+                </TableLayout>
+            </RelativeLayout>
+        </HorizontalScrollView>
+    </ScrollView>
 
     <RelativeLayout
+        android:id="@+id/btns"
         android:layout_width="fill_parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
