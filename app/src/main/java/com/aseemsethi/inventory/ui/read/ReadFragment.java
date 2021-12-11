@@ -1,9 +1,14 @@
 package com.aseemsethi.inventory.ui.read;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.text.style.AlignmentSpan;
 import android.util.Log;
 import android.view.CollapsibleActionView;
@@ -12,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AlphaAnimation;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -22,10 +28,12 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.aseemsethi.inventory.GenericFileProvider;
 import com.aseemsethi.inventory.MainActivity;
 import com.aseemsethi.inventory.R;
 import com.aseemsethi.inventory.databinding.FragmentInventoryBinding;
@@ -41,6 +49,10 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.gson.Gson;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -59,6 +71,9 @@ public class ReadFragment extends Fragment {
     String currentDate;
     TableLayout stk;
     Integer rowNum;
+    File FilesDir;
+    OutputStreamWriter outputStreamWriter;
+    boolean download = false;
 
     private ReadViewModel readViewModel;
     private FragmentReadBinding binding;
@@ -86,6 +101,11 @@ public class ReadFragment extends Fragment {
         currentDate = new SimpleDateFormat("dd-MM-yyyy",
                 Locale.getDefault()).format(new Date());
 
+        // /storage/emulated/0/Download
+        FilesDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS);
+        Log.d(TAG, "FilesDir Path1: " + FilesDir);
+
         binding = FragmentReadBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         final Button btn = binding.viewBtn;
@@ -93,6 +113,7 @@ public class ReadFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 v.startAnimation(buttonClick);
+                hideKeyboard(getActivity());
                 int selectedId = binding.radioGroup.getCheckedRadioButtonId();
                 Log.d(TAG, "Selected: " + selectedId);
                 RadioButton rb = root.findViewById(selectedId);
@@ -109,10 +130,20 @@ public class ReadFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 v.startAnimation(buttonClick);
+                hideKeyboard(getActivity());
+                download = true;
+                getContext().deleteFile( "out.txt");
                 int selectedId = binding.radioGroup.getCheckedRadioButtonId();
                 Log.d(TAG, "Selected: " + selectedId);
                 RadioButton rb = root.findViewById(selectedId);
                 String duration = rb.getText().toString();
+                try {
+                    outputStreamWriter = new OutputStreamWriter(
+                            getContext().openFileOutput("out.txt",
+                                    Context.MODE_PRIVATE));
+                } catch (FileNotFoundException e) {
+                    Log.d(TAG, "Open failed.." + e.getMessage());
+                }
                 if (duration.equals("Day")) {
                     getDailyData();
                 } else {
@@ -121,6 +152,46 @@ public class ReadFragment extends Fragment {
             }
         });
         return root;
+    }
+
+    private void allWriteCompleted() {
+        if (download == true) {
+            download = false;
+        } else {
+            return;
+        }
+        try {
+            outputStreamWriter.close();
+        } catch (IOException e) {
+            Log.d(TAG, "Close failed.." + e.getMessage());
+        }
+        GenericFileProvider.sendData(getContext(), "out.txt");
+    }
+
+    // /data/user/0/com.aseemsethi.inventory/files/out.txt
+    private void writeToFile(String date, String key, String value) {
+        if (download == false)
+            return;
+        String str = date + ":" + key + ":" + value + "\n";
+        try {
+            outputStreamWriter.write(str);
+        } catch (IOException e) {
+            Log.d(TAG, "Write failed.." + e.getMessage());
+        }
+/*
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(
+                    getContext().openFileOutput("out.txt",
+                            Context.MODE_PRIVATE));
+            outputStreamWriter.append(str);
+            //Log.d(TAG, "out.txt Path1: " +
+            //        getContext().getFileStreamPath("out.txt"));
+            outputStreamWriter.close();
+        }
+        catch (IOException e) {
+            Log.e(TAG, "File write failed: " + e.toString());
+        }
+ */
     }
 
     public void getDailyData() {
@@ -146,6 +217,7 @@ public class ReadFragment extends Fragment {
                         } else {
                             Log.d(TAG, "get failed with ", task.getException());
                         }
+                        allWriteCompleted();
                     }
                 });
     }
@@ -171,6 +243,7 @@ public class ReadFragment extends Fragment {
                         } else {
                             Log.w(TAG, "DB Access Error", task.getException());
                         }
+                        allWriteCompleted();
                     }
                 });
     }
@@ -183,6 +256,7 @@ public class ReadFragment extends Fragment {
             Log.d(TAG, "Key = " + entry.getKey() +
                     ", Value = " + entry.getValue());
             addToTable(date, entry.getKey(), entry.getValue());
+            writeToFile(date, entry.getKey(), entry.getValue());
         }
     }
 
@@ -239,5 +313,14 @@ public class ReadFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    public static void hideKeyboard(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
+        View view = activity.getCurrentFocus();
+        if (view == null) {
+            view = new View(activity);
+        }
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 }
