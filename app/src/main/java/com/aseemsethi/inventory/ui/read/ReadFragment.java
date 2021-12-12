@@ -169,31 +169,26 @@ public class ReadFragment extends Fragment {
     }
 
     // /data/user/0/com.aseemsethi.inventory/files/out.txt
-    private void writeToFile(String date, String key, String value) {
+    private void writeToFile(String date, String key, String num, String code) {
         if (download == false)
             return;
-        String str = date + ":" + key + ":" + value + "\n";
+        String str = date + ":" + key + ":" + num + ":" + code + "\n";
         try {
             outputStreamWriter.write(str);
         } catch (IOException e) {
             Log.d(TAG, "Write failed.." + e.getMessage());
         }
-/*
-        try {
-            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(
-                    getContext().openFileOutput("out.txt",
-                            Context.MODE_PRIVATE));
-            outputStreamWriter.append(str);
-            //Log.d(TAG, "out.txt Path1: " +
-            //        getContext().getFileStreamPath("out.txt"));
-            outputStreamWriter.close();
-        }
-        catch (IOException e) {
-            Log.e(TAG, "File write failed: " + e.toString());
-        }
- */
     }
 
+    private class Plan {
+        private String itemName;
+        private ArrayList<String> items;
+
+        public Plan(String name, ArrayList<String> items) {
+            this.itemName = name;
+            this.items = items;
+        }
+    }
     public void getDailyData() {
         Log.d(TAG, "getData for cid: " + cid);
         binding.tableD.removeAllViews();
@@ -207,10 +202,9 @@ public class ReadFragment extends Fragment {
                             DocumentSnapshot document = task.getResult();
                             if (document.exists()) {
                                 Log.d(TAG, "Doc data: " + document.getData());
-                                List<String> list = new ArrayList<>();
+                                document.get("item");
                                 String date = document.getId();
-                                list.add(document.getData().toString());
-                                parseData(date, list);
+                                parseData(date, document.getData());
                             } else {
                                 Log.d(TAG, "No such document");
                             }
@@ -234,11 +228,10 @@ public class ReadFragment extends Fragment {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "Success...");
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                List<String> list = new ArrayList<>();
-                                Log.d(TAG, document.getId() + " => " + document.getData());
+                                Log.d(TAG, "Doc data: " + document.getData());
+                                document.get("item");
                                 String date = document.getId();
-                                list.add(document.getData().toString());
-                                parseData(date, list);
+                                parseData(date, document.getData());
                             }
                         } else {
                             Log.w(TAG, "DB Access Error", task.getException());
@@ -248,19 +241,25 @@ public class ReadFragment extends Fragment {
                 });
     }
 
-    public void parseData(String date, List<String> list) {
-        Map<String, String> data = new HashMap<>();
-        data = new Gson().fromJson(list.get(0),
-                new TypeToken<HashMap<String, String>>(){}.getType());
-        for (Map.Entry<String,String> entry : data.entrySet()) {
+    public void parseData(String date, Map<String, Object> dataR) {
+        String num, code;
+        Log.d(TAG, "Date: " + date + ", Data: " + dataR);
+
+        for (Map.Entry<String,Object> entry : dataR.entrySet()) {
             Log.d(TAG, "Key = " + entry.getKey() +
                     ", Value = " + entry.getValue());
-            addToTable(date, entry.getKey(), entry.getValue());
-            writeToFile(date, entry.getKey(), entry.getValue());
+            ArrayList<String> val = (ArrayList<String>)entry.getValue();
+            for (String entry1 : val) {
+                Log.d(TAG, ", Value = " + entry1);
+            }
+            num = val.get(0);
+            code = val.get(1);
+            addToTable(date, entry.getKey(), num, code);
+            writeToFile(date, entry.getKey(), num, code);
         }
     }
 
-    public void addToTable(String date, String key, String value) {
+    public void addToTable(String date, String key, String num, String code) {
         TableRow tbrow = new TableRow(getContext());
         TextView t1v = new TextView(getContext());
         t1v.setText(rowNum.toString());
@@ -273,12 +272,12 @@ public class ReadFragment extends Fragment {
         t2v.setGravity(Gravity.CENTER);
         tbrow.addView(t2v);
         TextView t3v = new TextView(getActivity());
-        t3v.setText(value);
+        t3v.setText(num);
         t3v.setTextColor(Color.WHITE);
         t3v.setGravity(Gravity.CENTER);
         tbrow.addView(t3v);
         TextView t4v = new TextView(getActivity());
-        t4v.setText(date);
+        t4v.setText(code);
         t4v.setTextColor(Color.WHITE);
         t4v.setGravity(Gravity.CENTER);
         tbrow.addView(t4v);
@@ -303,7 +302,7 @@ public class ReadFragment extends Fragment {
         tv2.setTextColor(Color.WHITE);
         tbrow0.addView(tv2);
         TextView tv3 = new TextView(getActivity());
-        tv3.setText(" Date ");
+        tv3.setText(" Code ");
         tv3.setTextColor(Color.WHITE);
         tbrow0.addView(tv3);
         stk.addView(tbrow0);

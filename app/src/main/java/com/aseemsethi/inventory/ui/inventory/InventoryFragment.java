@@ -2,6 +2,7 @@ package com.aseemsethi.inventory.ui.inventory;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -39,11 +41,18 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.google.firebase.firestore.SetOptions;
 
+import java.io.BufferedReader;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
+import com.journeyapps.barcodescanner.ScanContract;
+import com.journeyapps.barcodescanner.ScanOptions;
 
 public class InventoryFragment extends Fragment {
     private HomeViewModel homeViewModel;
@@ -93,26 +102,59 @@ public class InventoryFragment extends Fragment {
                 Locale.getDefault()).format(new Date());
         Log.d(TAG, "Date: " + currentDate + " cid: " + cid);
 
+        ScanOptions options = new ScanOptions();
+        options.setPrompt("Scan a barcode");
+        options.setCameraId(0);  // Use a specific camera of the device
+        options.setBeepEnabled(false);
+        options.setBarcodeImageEnabled(true);
+        final Button btnBR = binding.barcode;
+        btnBR.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.startAnimation(buttonClick);
+                hideKeyboard(getActivity());
+                options.setDesiredBarcodeFormats(ScanOptions.ONE_D_CODE_TYPES);
+                barcodeLauncher.launch(options);
+            }
+        });
+        final Button btnQR = binding.qrcode;
+        btnQR.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                v.startAnimation(buttonClick);
+                hideKeyboard(getActivity());
+                options.setDesiredBarcodeFormats(ScanOptions.QR_CODE);
+                barcodeLauncher.launch(options);
+            }
+        });
+
         final Button btn = binding.saveItem;
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 v.startAnimation(buttonClick);
                 hideKeyboard(getActivity());
-                Log.d(TAG, "Item no: " + binding.itemNo.getText().toString());
+                String code = binding.barCodeID.getText().toString();
+                Log.d(TAG, "Saving Item no: " + binding.itemNo.getText().toString() +
+                        ", Code: " + code);
                 String str = binding.itemNo.getText().toString();
                 if(str == null || str.trim().isEmpty()) {
                     if (isAdded())
                         Toast.makeText(getContext(),"Enter Quantity",Toast.LENGTH_SHORT).show();
                 } else {
+                    addData(binding.itemID.getText().toString(),
+                            binding.itemNo.getText().toString(),
+                            code);
+                    /*
                     try {
                         Integer val = Integer.valueOf(binding.itemNo.getText().toString());
-                        addData(binding.itemID.getText().toString(), val);
+                        addData(binding.itemID.getText().toString(), val, code);
                     } catch(Exception e) {
                         if (isAdded())
                             Toast.makeText(getContext(), "Input error",
                                 Toast.LENGTH_SHORT).show();
                     }
+                     */
                 }
             }
         });
@@ -131,14 +173,42 @@ public class InventoryFragment extends Fragment {
     // Database looks like
     //      /cid/date/<items:count>
     //      /100/08-12-2021/<items, count>
-    public void addData(String itemName, int num) {
+    public void addData(String itemName, String num, String code) {
         DocumentReference docref = db.collection(cid).document(currentDate);
-        Map<String, Object> data = new HashMap<>();
+        //Map<String, Object> data = new HashMap<>();
         //data.put("item", itemName);
-        //data.put("count", num);
-        data.put(itemName, num);
-        Log.d(TAG, "Adding: " + itemName + ", num: " + num + " to cid: " +  cid);
+        //data.put("num", num);
+        //data.put("code", code);
+        Map<String, ArrayList<String>> data =
+                new HashMap<String, ArrayList<String>>();
+        data.put(itemName, new ArrayList<String>());
+        data.get(itemName).add(num);
+        data.get(itemName).add(code);
 
+        Log.d(TAG, "Adding: " + itemName + ", num: " + num +
+                " code: " + code + " to cid: " +  cid);
+
+        docref.set(data, SetOptions.merge())
+                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d(TAG, "New Doc successfully written!");
+                        if (isAdded())
+                            Toast.makeText(getContext(),"New Doc Write ok..",
+                                    Toast.LENGTH_SHORT).show();
+                    }
+                })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(TAG, "Error writing document", e);
+                        if (isAdded())
+                            Toast.makeText(getContext(),"New Doc Write failed..",
+                                    Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        /*
         docref.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -146,7 +216,9 @@ public class InventoryFragment extends Fragment {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Log.d(TAG, "Document exists!");
-                        docref.update(data)
+                        docref.update(
+                                "item", itemName,
+                                "num", num, "code", code)
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
@@ -168,8 +240,6 @@ public class InventoryFragment extends Fragment {
                     } else {
                         Log.d(TAG, "Document does not exist!");
                         docref
-                                //.collection("items")
-                                //.add(data)
                                 .set(data, SetOptions.merge())
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
@@ -198,6 +268,7 @@ public class InventoryFragment extends Fragment {
                 }
             }
         });
+         */
     }
 
 @Override
@@ -205,4 +276,19 @@ public class InventoryFragment extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
+    // Register the launcher and result handler
+    private final ActivityResultLauncher<ScanOptions> barcodeLauncher =
+        registerForActivityResult(new ScanContract(),
+        result -> {
+            if(result.getContents() == null) {
+                Toast.makeText(getContext(), "Cancelled", Toast.LENGTH_LONG).show();
+            } else {
+                TextView tv = binding.barCodeID;
+                Toast.makeText(getContext(), "Scanned: " +
+                        result.getContents(), Toast.LENGTH_LONG).show();
+                tv.setText(result.getContents());
+            }
+        });
+
 }

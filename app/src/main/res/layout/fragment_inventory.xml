@@ -24,7 +24,7 @@
             android:layout_height="wrap_content">
             <EditText
                 android:id="@+id/itemID"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:background="#ffe599"
                 android:padding="18dip"
@@ -35,7 +35,7 @@
 
             <EditText
                 android:id="@+id/itemNo"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:background="#fff2cc"
                 android:layout_weight=".4"
@@ -50,28 +50,44 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp">
-            <TextView
-                android:id="@+id/barCodeD"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="#ffe599"
-                android:padding="18dip"
-                android:layout_weight=".6"
-                android:hint="Bar Code"
-                android:textColor="#000"
-                android:textSize="20dp" />
-
             <Button
                 android:id="@+id/barcode"
                 style="@style/AppTheme.RoundedCornerMaterialButton"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:text="Bar"
+                android:layout_weight=".5"
+                android:textColor="#000000"
+                android:textSize="18dp" />
+            <Button
+                android:id="@+id/qrcode"
+                style="@style/AppTheme.RoundedCornerMaterialButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="QR"
                 android:layout_marginLeft="10dp"
-                android:text="BarCode"
+                android:layout_weight=".5"
                 android:textColor="#000000"
                 android:textSize="18dp" />
         </TableRow>
 
+        <TableRow
+            android:id="@+id/thirdRow"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp">
+            <TextView
+                android:id="@+id/barCodeID"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="#ffe599"
+                android:padding="18dip"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:hint="Bar Code"
+                android:textColor="#000"
+                android:textSize="20dp" />
+        </TableRow>
         <TableRow
             android:layout_width="fill_parent"
             android:layout_height="wrap_content">
