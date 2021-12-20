@@ -57,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     // [END declare_auth]
     FirebaseFirestore db;
 
+
     private GoogleSignInClient mGoogleSignInClient;
 
     @Override
